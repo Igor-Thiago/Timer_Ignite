@@ -1,14 +1,20 @@
 import {ThemeProvider} from 'styled-components'
 import { defaultTheme } from './styles/themes/defalt';
 import { GlobalStyle } from './styles/global';
+import { Router } from './Router';
+import { BrowserRouter } from 'react-router-dom'
+
 export function App() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <p>Hello World</p>
+      <BrowserRouter>
+        <Router/>
+      </BrowserRouter>
+      
 
 
-    <GlobalStyle/>
+      <GlobalStyle/>
     </ThemeProvider>
   )
 }
