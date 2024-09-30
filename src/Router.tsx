@@ -17,7 +17,7 @@ export function Router(){
 // Para cofigurar as rotas todas elas devem estar dentro da tag <Route/> e essas tags devem estar dentro da tag <Routes/>
 
 // No caso tem 2 tags <Route/> envoltas por outra tag <Route/>.. isso serve para atribuir um layout às 2 rotas por meio da tag <Outlet/> 
-// lá em DefaultLayout
+// lá em DefaultLayout/index.tsx
 
 
 
