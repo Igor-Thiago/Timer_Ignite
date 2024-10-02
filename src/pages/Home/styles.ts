@@ -113,6 +113,10 @@ const BaseInput = styled.input`    // Constante criada para ser usada como base 
 export const TaskInput = styled(BaseInput)`  // Ao invés de .input colocamos assim para ele herdar o css da constante criada
     flex: 1;
 
+    &::-webkit-calendar-picker-indicator {
+        display: none !important;
+    }
+
 `
 
 export const MinutesAmountInput = styled(BaseInput)`
