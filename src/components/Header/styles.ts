@@ -34,7 +34,7 @@ export const HeaderContainer = styled.header`
             
             // Esse active abaixo é uma propriedade do Navlink que basicamente é uma propriedade que 
             // fica ativa quando se está no link
-            &:active {
+            &.active {
                 color: ${(props) => props.theme['green-500']};
             }
         }
