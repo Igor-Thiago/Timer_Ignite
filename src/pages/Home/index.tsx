@@ -23,6 +23,7 @@ interface Cycle {
     minutesAmount: number
     startDate: Date
     interruptedDate?: Date
+    finishedDate?: Date
 }
 
 export function Home(){
@@ -44,12 +45,33 @@ export function Home(){
 
     const activeCycle = cycles.find((cycle) => cycle.id == activeCycleId)
 
+    const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
+
     useEffect(() => {
         let interval: number
         if(activeCycle) {
             interval = setInterval(() => {
-                setAmountSecondsPassed(differenceInSeconds(new Date(), activeCycle.startDate) 
+                const secondsDifference = differenceInSeconds(new Date(),
+                activeCycle.startDate,
+            )
+
+            if (secondsDifference >= totalSeconds) {
+                setCycles( (state) =>
+                    state.map((cycle) => {
+                    if (cycle.id == activeCycleId) {
+                        return { ...cycle, finishedDate: new Date()}   
+                    } else {
+                        return cycle
+                    }
+                    }),
                 )
+                setAmountSecondsPassed(totalSeconds)
+                clearInterval(interval)
+            } else {
+                setAmountSecondsPassed( secondsDifference )
+            }
+
+                
             }, 1000);
         }
 
@@ -58,7 +80,7 @@ export function Home(){
             clearInterval(interval)
         }
 
-    }, [activeCycle]) // como estou usando essa variável de fora obrigatoriamente tenho que botar ela como parâmetro do useEfect
+    }, [activeCycle, totalSeconds, activeCycleId]) // como estou usando essa variável de fora obrigatoriamente tenho que botar ela como parâmetro do useEfect
 
     function handleCreateNewCycle(data: NewCycleFormData){
         const id = String(new Date().getTime())
@@ -81,8 +103,8 @@ export function Home(){
         // Aqui primeiro eu altero o ciclo ativo para falar a data que ele foi interrompido
         // e depois eu falo que não tenho mais nenhum ciclo ativo
 
-        setCycles(
-            cycles.map((cycle) => {
+        setCycles((state) =>
+            state.map((cycle) => {
             if (cycle.id == activeCycleId) {
                 return { ...cycle, interruptedDate: new Date()}   
             } else {
@@ -95,7 +117,7 @@ export function Home(){
 
     
 
-    const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
+    
 
     const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
 
