@@ -44,13 +44,20 @@ export function Home(){
     const activeCycle = cycles.find((cycle) => cycle.id == activeCycleId)
 
     useEffect(() => {
+        let interval: number
         if(activeCycle) {
-            setInterval(() => {
-                setAmountSecondsPassed(differenceInSeconds(new Date(), activeCycle.startDate)
+            interval = setInterval(() => {
+                setAmountSecondsPassed(differenceInSeconds(new Date(), activeCycle.startDate) 
                 )
             }, 1000);
         }
-    }, [activeCycle])
+
+
+        return () => {           // Serve para limpar o que eu estava fazendo no useEfect anterior (Ele roda toda vez q a variavel muda)
+            clearInterval(interval)
+        }
+
+    }, [activeCycle]) // como estou usando essa variável de fora obrigatoriamente tenho que botar ela como parâmetro do useEfect
 
     function handleCreateNewCycle(data: NewCycleFormData){
         const id = String(new Date().getTime())
@@ -63,6 +70,7 @@ export function Home(){
         }
         setCycles((state) => [...state, newCycle])
         setActiveCycleId(id)
+        setAmountSecondsPassed(0)
         reset()
 
     }
@@ -80,6 +88,12 @@ export function Home(){
     const minutes = String(minutesAmount).padStart(2, '0')
 
     const seconds = String(secondsAmount).padStart(2, '0')
+
+    useEffect(() => {
+        if(activeCycle){
+            document.title = `${minutes}:${seconds}`
+        }
+    }, [minutes, seconds, activeCycle])
 
     const task = watch('task')  // Com isso consigo saber se o input vai ou não estar vazio || transforma o componente em um controled || monitoramento
     return (
