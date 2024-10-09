@@ -1,20 +1,15 @@
 import { HandPalm, Play } from "phosphor-react";
-import { CountDownContainer, FormContainer, HomeContainer, MinutesAmountInput, Separator, StartCountDownButton, StopCountDownButton, TaskInput } from "./styles";
+import { HomeContainer, StartCountDownButton, StopCountDownButton } from "./styles";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from 'zod'
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { differenceInSeconds } from "date-fns";
-import { NewCycleForm } from "./NewCycleForm";
-import { CountDown } from "./Countdown";
+import { NewCycleForm } from "./components/NewCycleForm";
+import { CountDown } from "./components/Countdown";
 
 
-const newCycleFormValidationSchema = zod.object({     // Validação do campo
-    task: zod.string().min(1,'Informe a tarefa'),  // Tem que ser uma string com no mínimo 1 caractere
-    minutesAmount: zod.number().min(5).max(60),   // tem que ser um número minimo 5 max 60
-})
 
-type NewCycleFormData = zod.infer<typeof newCycleFormValidationSchema>
 
 // esse tipo aqui acima serve para substituir uma interface. Ele pega a tipagem da task e do minutesAmount por eu já ter declarado
 // no newCycleFormValidationSchema por meio do schema que é a validação em si
@@ -28,61 +23,37 @@ interface Cycle {
     finishedDate?: Date
 }
 
+interface CyclesContextType{
+    activeCycle: Cycle | undefined
+    activeCycleId: string | null
+    markCurrentCycleAsFinished: () => void
+}
+
+export const CyclesContext = createContext({} as CyclesContextType)
+
 export function Home(){
 
     const [cycles, setCycles] = useState<Cycle[]>([])
     const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
-    const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
+    
 
 
-    const {register, handleSubmit, watch, reset} = useForm<NewCycleFormData>({  // register -> retorna todas as funções de um input || watch -> permite assistir(acompanhar) algo
-        resolver: zodResolver(newCycleFormValidationSchema),
-        defaultValues: {
-            task: '',
-            minutesAmount: 0,
-        
 
-        }
-    })  
 
     const activeCycle = cycles.find((cycle) => cycle.id == activeCycleId)
 
-    const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
 
-    useEffect(() => {
-        let interval: number
-        if(activeCycle) {
-            interval = setInterval(() => {
-                const secondsDifference = differenceInSeconds(new Date(),
-                activeCycle.startDate,
-            )
-
-            if (secondsDifference >= totalSeconds) {
-                setCycles( (state) =>
-                    state.map((cycle) => {
-                    if (cycle.id == activeCycleId) {
-                        return { ...cycle, finishedDate: new Date()}   
-                    } else {
-                        return cycle
-                    }
-                    }),
-                )
-                setAmountSecondsPassed(totalSeconds)
-                clearInterval(interval)
+    function markCurrentCycleAsFinished() {  // Essa função serve para armazenar o setCycles pois a tipagem dele é zuada
+        setCycles( (state) =>
+            state.map((cycle) => {
+            if (cycle.id == activeCycleId) {
+                return { ...cycle, finishedDate: new Date()}   
             } else {
-                setAmountSecondsPassed( secondsDifference )
+                return cycle
             }
-
-                
-            }, 1000);
-        }
-
-
-        return () => {           // Serve para limpar o que eu estava fazendo no useEfect anterior (Ele roda toda vez q a variavel muda)
-            clearInterval(interval)
-        }
-
-    }, [activeCycle, totalSeconds, activeCycleId]) // como estou usando essa variável de fora obrigatoriamente tenho que botar ela como parâmetro do useEfect
+            }),
+        )
+    }
 
     function handleCreateNewCycle(data: NewCycleFormData){
         const id = String(new Date().getTime())
@@ -117,28 +88,10 @@ export function Home(){
         setActiveCycleId(null)
     }
 
-    
-
-    
-
-    const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
-
-    const minutesAmount = Math.floor(currentSeconds / 60)  // Math.floor arredonda pra baixo o resultado
-
-    const secondsAmount = currentSeconds % 60
-
-    const minutes = String(minutesAmount).padStart(2, '0')
-
-    const seconds = String(secondsAmount).padStart(2, '0')
-
-    useEffect(() => {
-        if(activeCycle){
-            document.title = `${minutes}:${seconds}`
-        }
-    }, [minutes, seconds, activeCycle])
 
     const task = watch('task')  // Com isso consigo saber se o input vai ou não estar vazio || transforma o componente em um controled || monitoramento
     return (
+      <CyclesContext.Provider value={{activeCycle, activeCycleId, markCurrentCycleAsFinished}}>  
         <HomeContainer>
             <form onSubmit={handleSubmit(handleCreateNewCycle)} action="">
                 <NewCycleForm/>
@@ -161,5 +114,6 @@ export function Home(){
             </form>
 
         </HomeContainer>
+      </CyclesContext.Provider>  
     )
 }
