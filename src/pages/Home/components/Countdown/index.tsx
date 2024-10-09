@@ -1,12 +1,12 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { CountDownContainer, Separator } from "./styles";
 import { differenceInSeconds } from "date-fns";
 import { CyclesContext } from "../..";
 
 export function CountDown() {
-    const {activeCycle, activeCycleId, markCurrentCycleAsFinished} = useContext(CyclesContext)
+    const {activeCycle, activeCycleId, markCurrentCycleAsFinished, amountSecondsPassed, setSecondsPassed} = useContext(CyclesContext)
 
-    const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
+    
     const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
 
 
@@ -20,10 +20,10 @@ export function CountDown() {
 
             if (secondsDifference >= totalSeconds) {
                 markCurrentCycleAsFinished()
-                setAmountSecondsPassed(totalSeconds)
+                setSecondsPassed(totalSeconds)
                 clearInterval(interval)
             } else {
-                setAmountSecondsPassed( secondsDifference )
+                setSecondsPassed( secondsDifference )
             }              
           }, 1000);
         }
@@ -33,7 +33,7 @@ export function CountDown() {
             clearInterval(interval)
         }
 
-    }, [activeCycle, totalSeconds, activeCycleId, markCurrentCycleAsFinished]) // como estou usando essa variável de fora obrigatoriamente tenho que botar ela como parâmetro do useEfect
+    }, [activeCycle, totalSeconds, activeCycleId, markCurrentCycleAsFinished, setSecondsPassed]) // como estou usando essa variável de fora obrigatoriamente tenho que botar ela como parâmetro do useEfect
 
     const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
 
