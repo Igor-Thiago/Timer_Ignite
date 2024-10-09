@@ -28,13 +28,17 @@ export function Home(){
         }
     })  
 
-    const { handleSubmit, watch, /*reset*/} = newCycleForm
+    const { handleSubmit, watch, reset} = newCycleForm
 
+    function handleCreateNewCycle(data: NewCycleFormData){
+        createNewCycle(data)
+        reset()
+    }
 
     const task = watch('task')  // Com isso consigo saber se o input vai ou não estar vazio || transforma o componente em um controled || monitoramento
     return (
        <HomeContainer>
-            <form onSubmit={handleSubmit(createNewCycle)} action="">
+            <form onSubmit={handleSubmit(handleCreateNewCycle)} action="">
                 
                 <FormProvider {...newCycleForm}>
                     <NewCycleForm/>
