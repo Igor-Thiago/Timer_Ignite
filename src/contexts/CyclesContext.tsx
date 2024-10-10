@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useReducer, useState } from "react";
 
 interface CreateCycleData{
     task: string
@@ -33,7 +33,21 @@ interface CyclesContextProviderProps {
 }
 
 export function CyclesContextProvider({children}: CyclesContextProviderProps) {
-    const [cycles, setCycles] = useState<Cycle[]>([])
+    const [cycles, dispatch] = useReducer((state: Cycle[], action: any) => {
+        
+        /* O reducer serve para diminuir a complexidade de um useState por exemplo, 
+        no lugar da função set diferente do useState temos o dispatch. e os parametros da
+        função reducer são primeiro o estado "state" e depois uma action que pode fazer qualquer 
+        ação no estado */
+        
+        if(action.type == 'ADICIONA_NOVO_CICLO'){
+            return [...state, action.payload.newCycle]
+        }
+        
+        return state
+    }, [])
+
+
     const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
     const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
 
@@ -45,7 +59,7 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
     }
 
     function markCurrentCycleAsFinished() {  // Essa função serve para armazenar o setCycles pois a tipagem dele é zuada
-        setCycles( (state) =>
+        /* setCycles( (state) =>
             state.map((cycle) => {
             if (cycle.id == activeCycleId) {
                 return { ...cycle, finishedDate: new Date()}   
@@ -53,7 +67,14 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
                 return cycle
             }
             }),
-        )
+        ) */
+            dispatch({
+                type: 'MARK_CURRENT_CYCLE_AS_FINISHED',
+                payload: {
+                    activeCycleId,
+                },
+            })
+
     }
 
     function createNewCycle(data: CreateCycleData){
@@ -65,7 +86,17 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
             minutesAmount: data.minutesAmount,
             startDate: new Date(),
         }
-        setCycles((state) => [...state, newCycle])
+
+
+
+        dispatch({
+            type: 'ADICIONA_NOVO_CICLO',
+            payload: {
+                newCycle,
+            },
+        })
+
+        //setCycles((state) => [...state, newCycle])
         setActiveCycleId(id)
         setAmountSecondsPassed(0)
         
@@ -77,7 +108,7 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
         // Aqui primeiro eu altero o ciclo ativo para falar a data que ele foi interrompido
         // e depois eu falo que não tenho mais nenhum ciclo ativo
 
-        setCycles((state) =>
+       /*  setCycles((state) =>
             state.map((cycle) => {
             if (cycle.id == activeCycleId) {
                 return { ...cycle, interruptedDate: new Date()}   
@@ -86,7 +117,16 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
             }
             }),
         )
-        setActiveCycleId(null)
+        setActiveCycleId(null) */
+
+
+        dispatch({
+            type: 'INTERROMPE_CICLO_ATIVO',
+            payload: {
+                activeCycleId,
+            },
+
+        })
     }
 
     return(
