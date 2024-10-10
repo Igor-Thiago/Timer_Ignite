@@ -45,31 +45,46 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
         no lugar da função set diferente do useState temos o dispatch. e os parametros da
         função reducer são primeiro o estado "state" e depois uma action que pode fazer qualquer 
         ação no estado */
-        
-        if(action.type == 'ADICIONA_NOVO_CICLO'){
-            return {
-                ...state,
-                cycles: [...state.cycles, action.payload.newCycle],
-                activeCycleId: action.payload.newCycle.id,
-            }
-        }
 
-        if (action.type == 'INTERROMPE_CICLO_ATIVO'){
-            return {
-                ...state,
-                cycles: state.cycles.map((cycle) => {
-                    if (cycle.id == state.activeCycleId) {
-                        return { ...cycle, interruptedDate: new Date()}   
-                    } else {
-                        return cycle
-                    }
-                    }),
-                activeCycleId: null,
-            }
+        switch(action.type) {
+            case 'ADICIONA_NOVO_CICLO':
+                return {
+                    ...state,
+                    cycles: [...state.cycles, action.payload.newCycle],
+                    activeCycleId: action.payload.newCycle.id,
+                }
+
+            case 'INTERROMPE_CICLO_ATIVO':
+                return {
+                    ...state,
+                    cycles: state.cycles.map((cycle) => {
+                        if (cycle.id == state.activeCycleId) {
+                            return { ...cycle, interruptedDate: new Date()}   
+                        } else {
+                            return cycle
+                        }
+                        }),
+                    activeCycleId: null,
+                }
+
+            case 'MARK_CURRENT_CYCLE_AS_FINISHED':
+                return {
+                    ...state,
+                    cycles: state.cycles.map((cycle) => {
+                        if (cycle.id == state.activeCycleId) {
+                            return { ...cycle, finishedDate: new Date()}   
+                        } else {
+                            return cycle
+                        }
+                        }),
+                    activeCycleId: null,
+                }
+
+            default:
+                return state
         }
-        
-        return state
-    }, {
+    },
+    {
         cycles: [],
         activeCycleId: null,
     })
@@ -89,15 +104,7 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
     }
 
     function markCurrentCycleAsFinished() {  // Essa função serve para armazenar o setCycles pois a tipagem dele é zuada
-        /* setCycles( (state) =>
-            state.map((cycle) => {
-            if (cycle.id == activeCycleId) {
-                return { ...cycle, finishedDate: new Date()}   
-            } else {
-                return cycle
-            }
-            }),
-        ) */
+        
             dispatch({
                 type: 'MARK_CURRENT_CYCLE_AS_FINISHED',
                 payload: {
@@ -126,7 +133,7 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
             },
         })
 
-        //setCycles((state) => [...state, newCycle])
+        
         setAmountSecondsPassed(0)
         
 
