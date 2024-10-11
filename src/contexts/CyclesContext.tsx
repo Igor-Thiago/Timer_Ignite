@@ -82,7 +82,7 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
         // Aqui primeiro eu altero o ciclo ativo para falar a data que ele foi interrompido
         // e depois eu falo que não tenho mais nenhum ciclo ativo
 
-        dispatch(interruptCurrentCycleAction)
+        dispatch(interruptCurrentCycleAction())
     }
 
     return(
