@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useReducer, useState } from "react";
-import { ActionTypes, Cycle, cycleReducer } from "../reducers/cycles";
+import { Cycle, cycleReducer } from "../reducers/cycles/reducers";
+import { addNewCycleAction, interruptCurrentCycleAction, markCurrentCycleAsFinishedAction } from "../reducers/cycles/actions";
 
 interface CreateCycleData{
     task: string
@@ -52,12 +53,7 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
 
     function markCurrentCycleAsFinished() {  // Essa função serve para armazenar o setCycles pois a tipagem dele é zuada
         
-            dispatch({
-                type: ActionTypes.MARK_CURRENT_CYCLE_AS_FINISHED,
-                payload: {
-                    activeCycleId,
-                },
-            })
+            dispatch(markCurrentCycleAsFinishedAction())
 
     }
 
@@ -73,12 +69,7 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
 
 
 
-        dispatch({
-            type: ActionTypes.ADICIONA_NOVO_CICLO,
-            payload: {
-                newCycle,
-            },
-        })
+        dispatch(addNewCycleAction(newCycle))
 
         
         setAmountSecondsPassed(0)
@@ -91,15 +82,7 @@ export function CyclesContextProvider({children}: CyclesContextProviderProps) {
         // Aqui primeiro eu altero o ciclo ativo para falar a data que ele foi interrompido
         // e depois eu falo que não tenho mais nenhum ciclo ativo
 
-      
-
-        dispatch({
-            type: ActionTypes.INTERROMPE_CICLO_ATIVO,
-            payload: {
-                activeCycleId,
-            },
-
-        })
+        dispatch(interruptCurrentCycleAction)
     }
 
     return(
